@@ -16,7 +16,6 @@ Note: The recognition method is not very robust; please see SIFT / SURF for a go
 
 import sys
 import numpy as np
-sys.path.insert(0, "/usr/local/lib/python2.7/site-packages/") 
 import cv2
 
 
@@ -70,7 +69,7 @@ def getCards(im, numcards=4):
   blur = cv2.GaussianBlur(gray,(1,1),1000)
   flag, thresh = cv2.threshold(blur, 120, 255, cv2.THRESH_BINARY) 
        
-  contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+  im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
   contours = sorted(contours, key=cv2.contourArea,reverse=True)[:numcards]  
 
@@ -95,18 +94,19 @@ def get_training(training_labels_filename,training_image_filename,num_training_c
   training = {}
   
   labels = {}
-  for line in file(training_labels_filename): 
+  file = open(training_labels_filename,'r').read().split("\n")
+  for line in file:
     key, num, suit = line.strip().split()
     labels[int(key)] = (num,suit)
     
-  print "Training"
+  print ("Training")
 
   im = cv2.imread(training_image_filename)
   for i,c in enumerate(getCards(im,num_training_cards)):
     if avoid_cards is None or (labels[i][0] not in avoid_cards[0] and labels[i][1] not in avoid_cards[1]):
       training[i] = (labels[i], preprocess(c))
   
-  print "Done training"
+  print ("Done training")
   return training
   
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     # cv2.waitKey(0) 
     
     cards = [find_closest_card(training,c) for c in getCards(im,num_cards)]
-    print cards
+    print (cards)
     
   else:
-    print __doc__
+    print (__doc__)
